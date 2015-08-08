@@ -58,12 +58,14 @@
 (define (QUERY msg) (regex "^([^ ]+) (.*)$" msg) (set 'curchan $1) (SAY $2))
 (define (EMOTE msg) (send&print "PRIVMSG " curchan " :ACTION " msg ""))
 (define (CHANLIST)  (send&print "LIST"))
+(define (WHOIS user) (send&print "WHOIS " user))
 
 ;; translates text input from the keyboard, into actual IRC commands
 (define (translate_input)
   (letn (i (apply string (args)) ii (lower-case i))
     (cond
      ((empty? i) nil) ; do nothing
+     ((starts-with ii "@whois ") (WHOIS (7 i)))
      ((= "##" i)                (PART curchan))
      ((starts-with ii "#")      (JOIN i))
      ((= "@quit" ii)            (QUIT))

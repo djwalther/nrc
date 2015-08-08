@@ -140,6 +140,9 @@ command "/me does the action"
 
 MISC
 
+@whois <nickname>
+  The @whois command tells you information connected to a person's nickname
+
 @raw <text>
   The @raw command let's you pass text directly to the IRC server.  This is
 helpful for debugging, and let's you do things that IRC allows, but that aren't
