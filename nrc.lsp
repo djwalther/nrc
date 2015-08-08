@@ -57,7 +57,7 @@
 (define (DSAY msg)  (send&print "PRIVMSG " curchan " :" curuser ": " msg))
 (define (QUERY msg) (regex "^([^ ]+) (.*)$" msg) (set 'curchan $1) (SAY $2))
 (define (EMOTE msg) (send&print "PRIVMSG " curchan " :ACTION " msg ""))
-(define (LIST)      (send&print "LIST"))
+(define (CHANLIST)  (send&print "LIST"))
 
 ;; translates text input from the keyboard, into actual IRC commands
 (define (translate_input)
@@ -70,7 +70,7 @@
      ((starts-with ii "@quit ") (QUIT (6 i)))
      ((= "@bye" ii)             (QUIT))
      ((= "@exit" ii)            (QUIT))
-     ((= "@list" ii)            (LIST))
+     ((= "@list" ii)            (CHANLIST))
      ((starts-with ii "@raw ")  (send&print (5 i)))
      ((= "`" i)                 (set 'curuser ""))
      ((starts-with i "` ")      (DSAY (2 i)))
