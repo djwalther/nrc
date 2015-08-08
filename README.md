@@ -144,3 +144,17 @@ MISC
   The @raw command let's you pass text directly to the IRC server.  This is
 helpful for debugging, and let's you do things that IRC allows, but that aren't
 (yet) supported by the nrc client.
+
+FEATURES
+
+Logging
+
+If you set the environment variable LOGFILE, nrc will log every line to the logfile.
+
+Timestamping
+
+Every line in the logfile is timestamped.  This allows you to do replays,
+correlation of emails and other data, etc.  The timestamp is the standard Unix
+timestamp, a single integer value counting seconds since 1969.  This makes the
+logfile less cluttered, and easy to parse with tools like awk, perl, and
+newLisp.
