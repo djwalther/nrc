@@ -1,13 +1,24 @@
 #!/usr/bin/newlisp
-# nrc.lsp Copyright 2015 (c) David Walther
+#
+# nrc.lsp Copyright (c) 2015 David Walther
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 # A little IRC client that is also a logging bot.  For the little kid who is
 # sent to bed early while the adults stay awake, and wonders what he is missing
 # out on.
 
-# Fri Aug  7 14:38:53 PDT 2015 @djw (David Walther)
-
-# UI
+# UI based on Lambdamoo and irssi
 # @command (quit/bye/exit, join, part/leave, topic, kick, ban, gag/ignore, op, watch, away, back, raw, whois, whowas, help, invite, knock, list, names, mode, notice, rules, motd)
 # `nick text ``nick `` -
 # 'nick text ''nick ''
