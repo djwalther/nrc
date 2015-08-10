@@ -85,8 +85,8 @@
         (if (= "#" (first (l 0)))
           (println "[" (l 0) leftarrow (or n nick) "] " (l 1))
           (if n
-            (println n rightarrow (l 1))
-            (println (l 0) leftarrow (l 1)))))
+            (println n rightarrow " " (l 1))
+            (println (l 0) leftarrow " " (l 1)))))
       (true (println buf)))))
 
 ;; Send IRC protocol to the server, log it to disk, and display it in a friendly format.
