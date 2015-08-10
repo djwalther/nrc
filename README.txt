@@ -85,14 +85,23 @@ to a person in view of others, and saying words to them in private.
 PRIVATE MESSAGES
 
 'person hi there
+' something else I forgot...
 
-The ' lets nrc know you want to talk to a person in private.  You only need to
-type this once.  Afterward, you are typing to that person by default.  This
-only changes when you start talking to another person, or to a channel.  But,
-if you want to stop directing your words at someone, even if you have noone
-else in mind, it is simple: type ' on a line by itself.
+''person hi there
 
-'
+The ' lets nrc know you want to talk to a person in private.  If you use one ',
+you will continue talking in the current channel afterward.  If you want to
+message that person privately again, just put ' and a space character, then
+type what you want to say.  nrc knows to send the message to the last person
+you messaged.  If you use two ' in a row, '', you will be typing directly to
+that person in private.  Everything you type will go to them, the same as when
+you are typing into a channel.  In regular IRC this is the /query command.
+
+This only changes when you start talking to another person, or to a channel.
+If you want to stop directing your words at someone, even if you have noone
+else in mind, it is simple: type '' on a line by itself.
+
+''
 
 Now you will be talking to noone until you explicitly enable it again.
 
@@ -139,6 +148,16 @@ action.  This is how actions are done in MOO software.  IRC normally has the
 command "/me does the action"
 
 MISC
+
+AT COMMANDS (@)
+
+At commands start with the at symbol @.  Normally an @ command isn't passed to
+the channel for others to see.  But, you can send one if you want to, by
+escaping it like this:  @@.  If your message starts with @@, the first @ is
+ignored, and the rest of the message is sent through properly.
+
+If you want to share with someone else on IRC the @ command to use in nrc, this
+escape facility of @@ is very useful.
 
 @whois <nickname>
   The @whois command tells you information connected to a person's nickname

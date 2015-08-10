@@ -26,6 +26,9 @@
 
 # scrolling: allow page up and page down, also line at a time 
 
+(define leftarrow (char 8592)) ; right arrow in unicode
+(define rightarrow (char 8594)) ; left arrow in unicode
+
 (define server    (env "SERVER"))
 (define port (int (env "PORT")))
 (define password  (env "PASS"))
@@ -39,11 +42,59 @@
 
 (if (env "LOGFILE") (set 'logfd (open (env "LOGFILE") "append")))
 
+# Because of IRC's Scandinavian origin, the characters {}|^ are
+# considered to be the lower case equivalents of the characters []\~,
+(define (irc-lower-case str)
+  (replace "{" str "[")
+  (replace "}" str "]")
+  (replace "|" str "\\")
+  (replace "^" str "~")
+  (lower-case str)
+)
+
+(define (parse-nickname str)
+  (regex "^:([^!]+)!" str) (if $1 $1 str))
+
+(define (parse-irc-line l (style nil))
+  (when (= style 'log)      ; strip out the timestamp
+    (pop l 0 (+ 1 (find " " l))))
+  (let (i nil lst '())
+    (if (set 'i (find ":" l nil 1))
+      (append (parse (0 (- i 1) l) " ") (list ((+ 1 i) l)))
+      (parse l " "))))
+
+(define (print-irc timestamp buf)
+  (let (l (parse-irc-line buf) n nil c "")
+    (when (= ":" (first (first l)))
+      (set 'n (parse-nickname (pop l))))
+    (set 'c (upper-case (pop l)))
+    (cond
+      ((= c "PING") nil)
+      ((= c "PONG") nil)
+      ((= c "JOIN") nil)
+      ((= c "PART") nil)
+      ((= c "QUIT") nil)
+      ((= c "USER") nil)
+      ((= c "WHOIS") nil)
+      ((= c "NOTICE") (println c rightarrow (l 0) " " (l 1)))
+;      ((= c "MODE") (println n " changed mode for " (l 2) " on channel " (l 1) " to " (l 0)))
+      ((= c "NICK")
+        (println "!! " (if n (string n " is") "You are") " now known as " (l 0))
+        (unless n (set 'nick (l 0)))) ; we don't send a prefix, so we're changing our own nick
+      ((= c "PRIVMSG")
+        (if (= "#" (first (l 0)))
+          (println "[" (l 0) leftarrow (or n nick) "] " (l 1))
+          (if n
+            (println n rightarrow (l 1))
+            (println (l 0) leftarrow (l 1)))))
+      (true (println buf)))))
+
+;; Send IRC protocol to the server, log it to disk, and display it in a friendly format.
 (define (send&print)
-  (let (buf (string (apply string (args)) "\n") stamp (string (date-value) " "))
-    (print stamp buf)
-    (if logfd (write logfd (string stamp buf)))
-    (unless (net-send sock buf)
+  (let (buf (apply string (args)) stamp (string (date-value) " "))
+    (print-irc stamp buf)
+    (if logfd (write logfd (string stamp buf "\n")))
+    (unless (net-send sock (string buf "\r\n"))
       (println "newLisp send error: " (net-error))
       (exit)))
     (set 'keepalive (date-value)))
@@ -53,9 +104,11 @@
 (define (QUIT)      (send&print "QUIT" (if (args) (string " :" (apply string (args))) "")) (exit))
 (define (JOIN chan) (send&print "JOIN " chan) (set 'curchan chan))
 (define (PART chan) (if (starts-with chan "#") (send&print "PART " chan)) (set 'curchan ""))
-(define (SAY msg)   (send&print "PRIVMSG " curchan " :" msg))
+(define (SAY msg chan) (send&print "PRIVMSG " (or chan curchan) " :" msg))
 (define (DSAY msg)  (send&print "PRIVMSG " curchan " :" curuser ": " msg))
 (define (QUERY msg) (regex "^([^ ]+) (.*)$" msg 0) (set 'curchan $1) (SAY $2))
+(define (PAGE msg) (regex "^([^ ]+) (.*)$" msg 0) (set 'lastpaged $1) (SAY $2 $1))
+(define (REPEATPAGE msg) (SAY msg (or lastpaged curchan)))
 (define (EMOTE msg) (send&print "PRIVMSG " curchan " :ACTION " msg ""))
 (define (CHANLIST)  (send&print "LIST"))
 (define (WHOIS user) (send&print "WHOIS " user))
@@ -68,6 +121,8 @@
      ((starts-with ii "@whois ") (WHOIS (7 i)))
      ((= "##" i)                (PART curchan))
      ((starts-with ii "#")      (JOIN i))
+     ((starts-with ii "@@")     (SAY (1 i)))
+     ((= "@q" ii)               (QUIT))
      ((= "@quit" ii)            (QUIT))
      ((starts-with ii "@quit ") (QUIT (6 i)))
      ((= "@bye" ii)             (QUIT))
@@ -77,11 +132,15 @@
      ((= "`" i)                 (set 'curuser ""))
      ((starts-with i "` ")      (DSAY (2 i)))
      ((starts-with i "`")       (regex "^([^ ]+) (.*)$" (1 i) 0) (set 'curuser $1) (DSAY $2))
-     ((= "'" i)                 (set 'curchan ""))
-     ((starts-with i "'")       (QUERY (1 i)))
+     ((= "''" i)                (set 'curchan ""))
+     ((= "'" i)                 (set 'lastpaged nil))
+     ((starts-with i "''")      (QUERY (2 i)))
+     ((starts-with i "' ")      (REPEATPAGE (2 i)))
+     ((starts-with i "'")       (PAGE (1 i)))
      ((starts-with i ":")       (EMOTE (1 i)))
      (default                   (SAY i)))))
 
+;; Receive data from the IRC server, log it, and display it in a friendly format.
 (define (recv&print:recv&print)
   (unless partial (set 'partial ""))
   (let (buf "" stamp (string (date-value) " "))
@@ -92,7 +151,7 @@
     (let (lines (clean empty? (parse (string partial buf) "\r|\n" 0)))
       (set 'partial (if (regex "(\r|\n)$" buf 0) "" (pop lines -1)))
       (dolist (l lines)
-        (println stamp l)
+        (print-irc stamp l)
         (if logfd (write logfd (string stamp l "\n")))
         (when (regex "^PING :(.*)$" l 0) (PONG $1))))))
 
