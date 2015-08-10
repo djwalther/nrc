@@ -162,6 +162,15 @@ escape facility of @@ is very useful.
 @whois <nickname>
   The @whois command tells you information connected to a person's nickname
 
+@names
+@names <channel>
+
+@names by itself, tells you the people who are currently on the channel you are
+talking to.
+
+@names <channel> is the same, but for a channel that you specify, even if you
+aren't talking to that channel.
+
 @raw <text>
   The @raw command let's you pass text directly to the IRC server.  This is
 helpful for debugging, and let's you do things that IRC allows, but that aren't

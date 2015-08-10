@@ -76,6 +76,7 @@
       ((= c "QUIT") nil)
       ((= c "USER") nil)
       ((= c "WHOIS") nil)
+      ((= c "NAMES") nil)
       ((= c "NOTICE") (println c rightarrow (l 0) " " (l 1)))
 ;      ((= c "MODE") (println n " changed mode for " (l 2) " on channel " (l 1) " to " (l 0)))
       ((= c "NICK")
@@ -112,6 +113,7 @@
 (define (EMOTE msg) (send&print "PRIVMSG " curchan " :ACTION " msg ""))
 (define (CHANLIST)  (send&print "LIST"))
 (define (WHOIS user) (send&print "WHOIS " user))
+(define (NAMES chan) (println "NAMES chan = " chan " curchan = " curchan) (send&print "NAMES " (or chan curchan)))
 
 ;; translates text input from the keyboard, into actual IRC commands
 (define (translate_input)
@@ -128,6 +130,8 @@
      ((= "@bye" ii)             (QUIT))
      ((= "@exit" ii)            (QUIT))
      ((= "@list" ii)            (CHANLIST))
+     ((= "@names" ii)           (NAMES))
+     ((starts-with ii "@names ") (NAMES (7 i)))
      ((starts-with ii "@raw ")  (send&print (5 i)))
      ((= "`" i)                 (set 'curuser ""))
      ((starts-with i "` ")      (DSAY (2 i)))
