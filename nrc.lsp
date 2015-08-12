@@ -58,10 +58,11 @@
 (define (parse-irc-line l (style nil))
   (when (= style 'log)      ; strip out the timestamp
     (pop l 0 (+ 1 (find " " l))))
-  (let (i nil lst '())
-    (if (set 'i (find ":" l nil 1))
-      (append (parse (0 (- i 1) l) " ") (list ((+ 1 i) l)))
-      (parse l " "))))
+  (letn (lst (parse l " ")
+         idx (find ":" (1 (parse l " ")) (fn (a b) (starts-with b a))))
+      (if idx
+        (append (0 (+ 1 idx) lst) (list (join ((+ 1 idx) lst) " ")))
+        (parse l " "))))
 
 (define (print-irc timestamp buf)
   (let (l (parse-irc-line buf) n nil c "")
@@ -113,7 +114,7 @@
 (define (EMOTE msg) (send&print "PRIVMSG " curchan " :ACTION " msg ""))
 (define (CHANLIST)  (send&print "LIST"))
 (define (WHOIS user) (send&print "WHOIS " user))
-(define (NAMES chan) (println "NAMES chan = " chan " curchan = " curchan) (send&print "NAMES " (or chan curchan)))
+(define (NAMES chan) (send&print "NAMES " (or chan curchan)))
 
 ;; translates text input from the keyboard, into actual IRC commands
 (define (translate_input)
