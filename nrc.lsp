@@ -61,7 +61,7 @@
   (letn (lst (parse l " ")
          idx (find ":" (1 (parse l " ")) (fn (a b) (starts-with b a))))
       (if idx
-        (append (0 (+ 1 idx) lst) (list (join ((+ 1 idx) lst) " ")))
+        (append (0 (+ 1 idx) lst) (list (1 (join ((+ 1 idx) lst) " "))))
         (parse l " "))))
 
 (define (print-irc timestamp buf)
