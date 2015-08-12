@@ -123,7 +123,7 @@
      ((empty? i) nil) ; do nothing
      ((starts-with ii "@whois ") (WHOIS (7 i)))
      ((= "##" i)                (PART curchan))
-     ((starts-with ii "#")      (JOIN i))
+     ((starts-with ii "#")      (JOIN (first (parse i " "))))
      ((starts-with ii "@@")     (SAY (1 i)))
      ((= "@q" ii)               (QUIT))
      ((= "@quit" ii)            (QUIT))
